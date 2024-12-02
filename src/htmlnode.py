@@ -24,3 +24,20 @@ class HTMLNode:
     def __repr__(self):
         # The string representation of some of these (like the dictionary) might need to be changed:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
+    
+class LeafNode(HTMLNode):
+    def __init__(self, tag, value, children=None, props=None):
+        if children != None:
+            raise Exception("LeafNode cannot have any children.")
+        super().__init__(tag, value, children, props)
+
+    def to_html(self):
+        if self.value == None:
+            raise ValueError
+        output_str = ""
+        if self.tag == None:
+            # Return value as raw text
+            output_str += str(self.value)
+        else:
+            output_str += f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+        return output_str
