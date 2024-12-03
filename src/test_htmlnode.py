@@ -136,8 +136,8 @@ class TestLeafNode(unittest.TestCase):
         print(f"props_to_html output: {node.props_to_html()}\n")
 
 class TestParentNode(unittest.TestCase):
-    # Test a parent node with one LeafNode:
-    def test_emptyParent(self):
+    # Test a ParentNode with one LeafNode:
+    def test_singleParent(self):
         tag = "p"
         children = [LeafNode("a", "This is a link.", props={"href": "www.google.com"})]
         node = ParentNode(tag, children)
@@ -145,9 +145,83 @@ class TestParentNode(unittest.TestCase):
         # Test the props_to_html method:
         self.print_props_to_html_output(node)
         # Test the .to_html() method:
-        print(f"ParentNode '.to_html' output: {node.to_html()}")
+        print(f"ParentNode '.to_html' output: {node.to_html()}\n")
 
-    
+    # Test a ParentNode with another ParentNode inside which contains one LeafNode:
+    def test_nestedParent(self):
+        tag1 = "p"
+        tag2 = "i"
+        children = [LeafNode("a", "This is a link.", props={"href": "www.google.com"})]
+        node2 = ParentNode(tag1, children) # Nested ParentNode
+        node = ParentNode(tag2, [node2]) # Outer ParentNode
+        print(f"ParentNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"ParentNode '.to_html' output: {node.to_html()}\n")
+
+    # Test a ParentNode containing two ParentNodes at the same level, each with a LeafNode:
+    def test_nestedDoubleParent(self):
+        tag1 = "p"
+        tag2 = "i"
+        children1 = [
+            LeafNode("a", "This is link No. 1", props={"href": "www.google.com"}),
+            LeafNode("a", "This is link No. 2", props={"href": "www.dontDuplicate.org"}),
+        ]
+        children2 = [
+            LeafNode("a", "This is also a link in a different Parent.", props={"href": "boot.dev", "target": "_All"})
+        ]
+        node2 = ParentNode(tag1, children1) # Nested ParentNode
+        node1 = ParentNode(tag2, [node2]) # Outer ParentNode1
+        node3 = ParentNode(tag1, children2) # Outer ParentNode2
+        node = ParentNode(tag2, [node1, node3])
+        print(f"ParentNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"ParentNode '.to_html' output: {node.to_html()}\n")
+
+    # Test three LeafNodes in a single ParentNode without nesting:
+    def test_multipleLeaves(self):
+        parentTag = "p"
+        children = [
+            LeafNode("b", "Text 1"),
+            LeafNode("i", "Text 2"),
+            LeafNode("c", "Text 3"),
+        ]
+        node = ParentNode(parentTag, children)
+        print(f"ParentNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"ParentNode '.to_html' output: {node.to_html()}\n")
+
+    # Same as the last test but buried under one nested ParentNode:
+    def test_multipleLeavesInOneNest(self):
+        parentTag1 = "p"
+        parentTag2 = "h1"
+        children = [
+            LeafNode("b", "Text 1"),
+            LeafNode("i", "Text 2"),
+            LeafNode("c", "Text 3"),
+        ]
+        node1 = ParentNode(parentTag1, children)
+        node = ParentNode(parentTag2, [node1])
+        print(f"ParentNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"ParentNode '.to_html' output: {node.to_html()}\n")
+
+    # Test a ParentNode with no children (this should fail):
+    ### def test_noChildren(self):
+    ###     node = ParentNode("p", [])
+    ###     print(f"ParentNode: {node}")
+    ###     # Test the props_to_html method:
+    ###     self.print_props_to_html_output(node)
+    ###     # Test the .to_html() method:
+    ###     print(f"ParentNode '.to_html' output: {node.to_html()}\n")
+    # ^ The above test fails as expected.
 
     # Create a method to print the props_to_html output which is used in all of the above tests:
     def print_props_to_html_output(self, node):

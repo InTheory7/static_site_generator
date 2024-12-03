@@ -63,6 +63,7 @@ class ParentNode(HTMLNode):
 
             # If the current node is a ParentNode:
             elif isinstance(current_node, ParentNode):
+                current_string = ""
                 # Loop through each of the ParentNode's children and call the
                 # function again on each. Add the strings together:
                 for child_node in current_node.children:
