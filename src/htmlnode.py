@@ -33,7 +33,7 @@ class LeafNode(HTMLNode):
 
     def to_html(self):
         if self.value == None:
-            raise ValueError
+            raise ValueError("LeafNode is mmissing a 'value'")
         output_str = ""
         if self.tag == None:
             # Return value as raw text
@@ -41,3 +41,35 @@ class LeafNode(HTMLNode):
         else:
             output_str += f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
         return output_str
+    
+class ParentNode(HTMLNode):
+    # tag and children are non-optional and it doesn't take a 'value':
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag, None, children, props)
+        if self.value != None:
+            raise Exception("ParentNode cannot have a 'value'")
+        
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("ParentNode is missing a tag")
+        elif len(self.children) == 0:
+            raise ValueError("ParentNode is missing children")
+        
+        def create_ParentNode_string(current_node, current_string=""):
+            # If the current node is a LeafNode:
+            if isinstance(current_node, LeafNode):
+                # Use the LeafNode's own to_html method to get its string:
+                return current_node.to_html()
+
+            # If the current node is a ParentNode:
+            elif isinstance(current_node, ParentNode):
+                # Loop through each of the ParentNode's children and call the
+                # function again on each. Add the strings together:
+                for child_node in current_node.children:
+                    current_string += create_ParentNode_string(child_node, current_string)
+                # Encapsulate the returned string in the ParentNode's data in the
+                # same way a LeafNode works with the 'value' replaced with the
+                # current string:
+                return f"<{current_node.tag}{current_node.props_to_html()}>{current_string}</{current_node.tag}>"
+
+        return create_ParentNode_string(self)

@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     # Create an HTML node with no input attributes and print the string repr:
@@ -130,6 +130,24 @@ class TestLeafNode(unittest.TestCase):
         self.print_props_to_html_output(node)
         # Test the .to_html() method:
         print(f"LeafNode '.to_html' output: {node.to_html()}")
+
+    # Create a method to print the props_to_html output which is used in all of the above tests:
+    def print_props_to_html_output(self, node):
+        print(f"props_to_html output: {node.props_to_html()}\n")
+
+class TestParentNode(unittest.TestCase):
+    # Test a parent node with one LeafNode:
+    def test_emptyParent(self):
+        tag = "p"
+        children = [LeafNode("a", "This is a link.", props={"href": "www.google.com"})]
+        node = ParentNode(tag, children)
+        print(f"ParentNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"ParentNode '.to_html' output: {node.to_html()}")
+
+    
 
     # Create a method to print the props_to_html output which is used in all of the above tests:
     def print_props_to_html_output(self, node):
