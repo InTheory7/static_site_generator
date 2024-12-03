@@ -1,5 +1,6 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
+from textnode import TextNode
 
 class TestHTMLNode(unittest.TestCase):
     # Create an HTML node with no input attributes and print the string repr:
@@ -226,6 +227,59 @@ class TestParentNode(unittest.TestCase):
     # Create a method to print the props_to_html output which is used in all of the above tests:
     def print_props_to_html_output(self, node):
         print(f"props_to_html output: {node.props_to_html()}\n")
+
+class TestTextNodeToHTMLNodeFunc(unittest.TestCase):
+    # Convert plain text:
+    def test_plainText(self):
+        node = text_node_to_html_node(TextNode(text="This should show as plain text.", text_type="normal"))
+        print(f"TextNode to LeafNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"LeafNode '.to_html' output: {node.to_html()}\n")
+    # Convert bold text:
+    def test_boldText(self):
+        node = text_node_to_html_node(TextNode(text="This should be bold text.", text_type="bold"))
+        print(f"TextNode to LeafNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"LeafNode '.to_html' output: {node.to_html()}\n")
+    # Convert italic text:
+    def test_italicText(self):
+        node = text_node_to_html_node(TextNode(text="This should be italic.", text_type="italic"))
+        print(f"TextNode to LeafNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"LeafNode '.to_html' output: {node.to_html()}\n")
+    # Convert code text:
+    def test_codeText(self):
+        node = text_node_to_html_node(TextNode(text="This should show as code.", text_type="code"))
+        print(f"TextNode to LeafNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"LeafNode '.to_html' output: {node.to_html()}\n")
+    # Convert link text:
+    def test_linkText(self):
+        node = text_node_to_html_node(TextNode(text="This is a link.", text_type="link", url="www.google.com"))
+        print(f"TextNode to LeafNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"LeafNode '.to_html' output: {node.to_html()}\n")
+    # Convert image text:
+    def test_imageText(self):
+        node = text_node_to_html_node(TextNode(text="This is alt text", text_type="image", url="public/test_image.jpg"))
+        print(f"TextNode to LeafNode: {node}")
+        # Test the props_to_html method:
+        self.print_props_to_html_output(node)
+        # Test the .to_html() method:
+        print(f"LeafNode '.to_html' output: {node.to_html()}\n")
+
+    def print_props_to_html_output(self, node):
+        print(f"props_to_html output: {node.props_to_html()}")
 
 if __name__ == "__main__":
     unittest.main()
