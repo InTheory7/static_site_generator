@@ -84,3 +84,5 @@ class TestDelimiterSplit(unittest.TestCase):
         ]
         print(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter(old_nodes, "**", TextType.BOLD), "*", TextType.ITALIC), "`", TextType.CODE))
     
+if __name__ == "__main__":
+    unittest.main()
