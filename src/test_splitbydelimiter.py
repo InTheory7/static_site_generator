@@ -1,5 +1,5 @@
 import unittest
-from splitbydelimiter import split_nodes_delimiter
+from splitbydelimiter import split_nodes_delimiter, split_nodes_image, split_nodes_link
 from textnode import TextNode, TextType
 
 class TestDelimiterSplit(unittest.TestCase):
@@ -83,6 +83,139 @@ class TestDelimiterSplit(unittest.TestCase):
             TextNode("This one is *italic*, this one is **bold**, and this one is `code`.", "normal"),
         ]
         print(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter(old_nodes, "**", TextType.BOLD), "*", TextType.ITALIC), "`", TextType.CODE))
+
+
+class TestSplitByLink(unittest.TestCase):
+    # Input an empty string:
+    def test_1emptyString(self):
+        old_nodes = [
+            TextNode("", "normal")
+        ]
+        print(f"\n{split_nodes_link(old_nodes)}")
     
+    # Input a string with no image:
+    def test_2noLink(self):
+        old_nodes = [
+            TextNode("This string has no link", "normal")
+        ]
+        print(split_nodes_link(old_nodes))
+
+    # Input a string with one link:
+    def test_3oneLink(self):
+        old_nodes = [
+            TextNode("This is a [link](www.link.com), how does it look?", "normal")
+        ]
+        print(split_nodes_link(old_nodes))
+
+    # Input a string with two links:
+    def test_4twoLinks(self):
+        old_nodes = [
+            TextNode("Here's a different [link](hotLink.com), and so is [this one](hyperlink.org/link)", "normal")
+        ]
+        print(split_nodes_link(old_nodes))
+
+    # Input a string with three links:
+    def test_5threeLinks(self):
+        old_nodes = [
+            TextNode("Here's the first link: [link_1](link.example/#1). Here's the second [link](link.example/#2). And here's the third and final [link](link.example/#3)", "normal")
+        ]
+        print(split_nodes_link(old_nodes))
+
+    # Input a string that's just an image:
+    def test_6onlyLink(self):
+        old_nodes = [
+            TextNode("[This is just a link](linkTester.com)", "normal")
+        ]
+        print(split_nodes_link(old_nodes))
+
+    # Input a string that starts with a link:
+    def test_7startWithImage(self):
+        old_nodes = [
+            TextNode("[Anchor text immediately](wikipedia.org), and then normal text.", "normal")
+        ]
+        print(split_nodes_link(old_nodes))
+
+    # Input a pair of nodes, each with link-containing strings:
+    def test_8twoNodesWithLinks(self):
+        old_nodes = [
+            TextNode("Here's a node with a link: [This is the link](linkExample.biz), do you like it?", "normal"),
+            TextNode("Link number 2: [Click here!](scam.link.tv)", "normal"),
+        ]
+        print(split_nodes_link(old_nodes))
+
+# Repeat the image tests with the link version:
+class TestSplitByImage(unittest.TestCase):
+    # Input an empty string:
+    def test_1emptyString(self):
+        old_nodes = [
+            TextNode("", "normal")
+        ]
+        print(f"\n{split_nodes_image(old_nodes)}")
+    
+    # Input a string with no image:
+    def test_2noImage(self):
+        old_nodes = [
+            TextNode("This string has no image", "normal")
+        ]
+        print(split_nodes_image(old_nodes))
+
+    # Input a string with one image:
+    def test_3oneImage(self):
+        old_nodes = [
+            TextNode("This is an image: ![Here's the alt text](www.imageExample.com), how does it look?", "normal")
+        ]
+        print(split_nodes_image(old_nodes))
+
+    # Input a string with two images:
+    def test_4twoImages(self):
+        old_nodes = [
+            TextNode("This is an image: ![Here's the alt text](www.imageExample.com), and so is this: ![Here's a second alt text](secondImage.org/image.png)", "normal")
+        ]
+        print(split_nodes_image(old_nodes))
+
+    # Input a string with three images:
+    def test_5threeImages(self):
+        old_nodes = [
+            TextNode("Here's the first image: ![Alt text #1](www.imageExample.com). Here's the second image: ![Alt text #2](secondImage.org/image.png). And here's the third and final image: ![Alt text #3](final.image.png)", "normal")
+        ]
+        print(split_nodes_image(old_nodes))
+
+    # Input a string that's just an image:
+    def test_6onlyImage(self):
+        old_nodes = [
+            TextNode("![This is just an image](www.imageExample.com)", "normal")
+        ]
+        print(split_nodes_image(old_nodes))
+
+    # Input a string that starts with an image:
+    def test_7startWithImage(self):
+        old_nodes = [
+            TextNode("![This is just an image](www.imageExample.com), but then there's more text.", "normal")
+        ]
+        print(split_nodes_image(old_nodes))
+
+    # Input a pair of nodes, each with image-containing strings:
+    def test_8twoNodesWithImages(self):
+        old_nodes = [
+            TextNode("Here's a node with an image: ![This is just an image](www.imageExample.com), do you like it?", "normal"),
+            TextNode("Image number 2: ![Alt text example](image.link.example.png)", "normal"),
+        ]
+        print(split_nodes_image(old_nodes))        
+    
+class TestSplitByImageAndLink(unittest.TestCase):
+    # Test passing a string into the link and image functions in turn:
+    def test_1linkThenImage(self):
+        old_nodes = [
+            TextNode("Here's an image: ![Image alt text](image.com), and here's a [link](examplelink.com). How are they?", "normal")
+        ]
+        print(f"\n{split_nodes_image(split_nodes_link(old_nodes))}")
+
+    # Test passing a string into the image and link functions in turn:
+    def test_2imageThenLink(self):
+        old_nodes = [
+            TextNode("Here's an image: ![Image alt text](image.com), and here's a [link](examplelink.com). How are they?", "normal")
+        ]
+        print(split_nodes_link(split_nodes_image(old_nodes)))
+
 if __name__ == "__main__":
     unittest.main()
