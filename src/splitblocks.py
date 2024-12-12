@@ -37,7 +37,6 @@ def block_to_block_type(block):
     lines = block.split("\n")
     # Remove whitespace from each line (without a for loop):
     new_lines = list(map(lambda line: line.strip(), lines))
-    print(new_lines)
 
     # Check if the block is a quote, unordered, or ordered list
     quote_true = True

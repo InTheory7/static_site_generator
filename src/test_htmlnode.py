@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
+from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node, markdown_to_html_node
 from textnode import TextNode
 
 class TestHTMLNode(unittest.TestCase):
@@ -280,6 +280,117 @@ class TestTextNodeToHTMLNodeFunc(unittest.TestCase):
 
     def print_props_to_html_output(self, node):
         print(f"props_to_html output: {node.props_to_html()}")
+
+class TestMarkdownToHTMLNodeFunc(unittest.TestCase):
+    # Pass in an empty string:
+    def test_01emptyString(self):
+        markdown = ""
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a single line:
+    def test_02singleLine(self):
+        markdown = "Here's an example line of plain text."
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a multi-line paragraph:
+    def test_03multiLine(self):
+        markdown = """
+This is the first line of a multi-line paragraph of plain text.
+Here's the next line.
+And the final line."""
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a multi-line paragraph with inline markdown:
+    def test_04multiLineWithMarkdown(self):
+        markdown = """
+The first line contains some *italics* and a **bold** bit of text.
+The next line has some `code in it`.
+And the final line has a [link](www.exampleLine.com) and an embedded image: ![Image alt text](imageURL.png)"""
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a heading:
+    def test05_heading(self):
+        markdown = "# This is a level 1 heading"
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a lower level heading:
+    def test06_lowerHeading(self):
+        markdown = "#### This is a level 4 heading"
+        print(markdown_to_html_node(markdown))
+
+    # Pass in an invalidly low heading:
+    def test07_invalidHeading(self):
+        markdown = "########## This is a level X? heading"
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a code block:
+    def test08_codeBlock(self):
+        markdown = """```Here's a multi-line code block.
+With this being the second line.
+And this the third.```"""
+        print(markdown_to_html_node(markdown))
+
+    # Repeat the above but with indentation within the multi-line string:
+    def test09_codeBlockWithIndents(self):
+        markdown = """```Here's a multi-line code block.
+        With this being the second line.
+        And this the third.```"""
+        print(markdown_to_html_node(markdown))
+    # ^ This runs but doesn't format correctly without deleting whitespace at the start.
+
+    # Pass in a quote:
+    def test10_quoteBlock(self):
+        markdown = """>Each line of this quote
+>Starts with a '>' character.
+>But who said it?"""
+        print(markdown_to_html_node(markdown))
+
+    # Pass in a quote with indents *before* the >:
+    def test11_quoteBlockWithIndent(self):
+        markdown = """>Each line of this quote
+        >Starts with a '>' character.
+        >But who said it?"""
+        print(markdown_to_html_node(markdown))
+        # ^ This runs but doesn't format correctly without deleting whitespace at the start.
+
+    # Repeat the above but with spaces after the >:
+    def test12_quoteBlockWithSpaces(self):
+        markdown = """> Each line of this quote
+> Starts with a '>' character.
+> But who said it?"""
+        print(markdown_to_html_node(markdown))
+        # ^ This runs but doesn't format correctly without deleting whitespace at the start.
+
+    # Pass in an unordered list:
+    def test13_unorderedList(self):
+        markdown = """- List item 1
+- List item 2
+- List item 3"""
+        print(markdown_to_html_node(markdown))
+
+    # Pass in an ordered list:
+    def test14_orderedList(self):
+        markdown = """1. List item 1
+2. List item 2
+3. List item 3
+4. List item 4
+5. 5
+6. 6
+7. 7
+8. 8
+9. 9
+10. List item 10!"""
+        print(markdown_to_html_node(markdown))
+
+    # Pass in an incorrectly numbered ordered list:
+    def test15_incorrectOrderedList(self):
+        markdown = """1. List item 1
+3. List item 2
+4. List item 3"""
+        print(markdown_to_html_node(markdown))
+
+    def test_printNewLines(self):
+        print("\n\n\n")
 
 if __name__ == "__main__":
     unittest.main()

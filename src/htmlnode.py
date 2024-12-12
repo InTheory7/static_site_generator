@@ -91,3 +91,126 @@ def text_node_to_html_node(text_node):
             return LeafNode(tag="a", value=text_node.text, children=None, props={"href": text_node.url})
         case TextType.IMAGE:
             return LeafNode(tag="img", value="", children=None, props={"src": text_node.url, "alt": text_node.text})
+        
+from splitblocks import markdown_to_blocks, block_to_block_type
+from texttotextnode import text_to_textnode
+
+def markdown_to_html_node(markdown):
+    # Convert from a block of text to children HTMLNodes based
+    # on the inline text contained within:
+    def text_to_children(block):
+        # Create TextNodes from a single block of text:
+        block_TextNodes = text_to_textnode(block)
+        # Convert TextNodes to HTMLNodes:
+        block_HTMLNodes = []
+        for node in block_TextNodes:
+            block_HTMLNodes.append(text_node_to_html_node(node))
+        # Return a list of HTMLNodes:
+        return block_HTMLNodes
+    
+    # Format heading text and level:
+    def format_heading(block):
+        # Count the heading level from the number of '#' at the start
+        heading_level = 0
+        for char in block:
+            if char == "#":
+                heading_level += 1
+            else:
+                break
+        # Remove the '#' and return the heading string
+        return heading_level, block[(heading_level+1):]
+    
+    # Format code blocks:
+    def format_code(block):
+        # Remove the three start and end backticks (which, if this is
+        # already formatted as valid code, will be the first and last
+        # characters in the string:
+        new_block = block[3:]
+        return new_block[:-3]
+    
+    # Format quote blocks:
+    def format_quote(block):
+        # Remove the > from each line within the block
+        # Split the block at newlines:
+        lines = block.split("\n")
+        new_lines = []
+        for line in lines:
+            new_lines.append(line[1:])
+        return "\n".join(new_lines)
+    
+    # Format unordered lists and convert to child HTMLNodes for each line
+    def format_unordered_list(block):
+        # Remove the first two characters from each line:
+        lines = block.split("\n")
+        new_lines = []
+        for line in lines:
+            new_lines.append(line[2:])
+        # Now create a list of HTMLNodes, one for each line:
+        child_nodes = []
+        for line in new_lines:
+            child_nodes.append(HTMLNode(tag="li", value=line))
+        return child_nodes
+    
+    # Format ordered lists and convert to child HTMLNodes for each line:
+    def format_ordered_list(block):
+        # Remove a variable number of characters from the start of each line:
+        lines = block.split("\n")
+        new_lines = []
+        line_count = 0
+        for line in lines:
+            line_count += 1
+            line_count_length = int(line_count/10) + 1 + 2
+            new_lines.append(line[line_count_length:])
+        # Create a list of HTMLNodes, one for each line:
+        child_nodes = []
+        for line in new_lines:
+            child_nodes.append(HTMLNode(tag="li", value=line))
+        return child_nodes
+
+
+
+
+    # Check that the input markdown is a string:
+    if not isinstance(markdown, str):
+        raise Exception("Input must be a string")
+
+    # Split the input markdown into blocks, using the
+    # function already created for that:
+    blocks = markdown_to_blocks(markdown)
+
+    # Initialise the nodes for each block:
+    block_nodes = []
+    # Loop over each block and create a HTMLNode for each:
+    for block in blocks:
+        # Determine the type of block (options are normal, heading, code,
+        # quote, unordered_list, ordered_list):
+        block_type = block_to_block_type(block)
+
+        # Depending on the block type, create ParentNodes:
+        block_children = text_to_children(block)
+        match block_type:
+            case "normal":
+                block_node = HTMLNode(tag="p", children=block_children)
+            case "heading":
+                heading_level, heading_text = format_heading(block)
+                block_node = HTMLNode(tag=f"h{heading_level}", value=heading_text)
+            case "code":
+                code_text = format_code(block)
+                block_node = HTMLNode(tag="pre", children=HTMLNode(tag="code",value=code_text))
+            case "quote":
+                quote_text = format_quote(block)
+                block_node = HTMLNode(tag="blockquote", value=quote_text)
+            case "unordered_list":
+                child_nodes = format_unordered_list(block)
+                block_node = HTMLNode(tag="ul", children=child_nodes)
+            case "ordered_list":
+                child_nodes = format_ordered_list(block)
+                block_node = HTMLNode(tag="ol", children=child_nodes)
+
+        # Add each block's node to the list of nodes for all blocks:
+        block_nodes.append([block_node])
+
+    # Surround the block_nodes in a 'div' HTMLNode:
+    return HTMLNode(tag="div", children=block_nodes)
+
+    
