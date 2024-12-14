@@ -9,7 +9,7 @@ def main():
 
     source = "static"
     dest = "public"
-    
+
     dest_objects = copy_source_to_dest(source, dest, live_print=False)
     # print(dest_objects)
 
