@@ -35,7 +35,7 @@ class LeafNode(HTMLNode):
 
     def to_html(self):
         if self.value == None:
-            raise ValueError("LeafNode is mmissing a 'value'")
+            raise ValueError("LeafNode is missing a 'value'")
         output_str = ""
         if self.tag == None:
             # Return value as raw text
@@ -57,23 +57,23 @@ class ParentNode(HTMLNode):
         elif len(self.children) == 0:
             raise ValueError("ParentNode is missing children")
         
-        def create_ParentNode_string(current_node, current_string=""):
+        def create_ParentNode_string(current_node):
+            print(f"Processing node: {type(current_node)}")
             # If the current node is a LeafNode:
             if isinstance(current_node, LeafNode):
                 # Use the LeafNode's own to_html method to get its string:
-                return current_node.to_html()
+                result = current_node.to_html()
+                print(f"LeafNode result: {result}")
+                return result
 
             # If the current node is a ParentNode:
             elif isinstance(current_node, ParentNode):
-                current_string = ""
-                # Loop through each of the ParentNode's children and call the
-                # function again on each. Add the strings together:
+                children_html = ""
                 for child_node in current_node.children:
-                    current_string += create_ParentNode_string(child_node, current_string)
-                # Encapsulate the returned string in the ParentNode's data in the
-                # same way a LeafNode works with the 'value' replaced with the
-                # current string:
-                return f"<{current_node.tag}{current_node.props_to_html()}>{current_string}</{current_node.tag}>"
+                    child_result = create_ParentNode_string(child_node)
+                    print(f"Child result: {child_result}")
+                    children_html += child_result
+                return f"<{current_node.tag}{current_node.props_to_html()}>{children_html}</{current_node.tag}>"
 
         return create_ParentNode_string(self)
 
@@ -135,8 +135,9 @@ def markdown_to_html_node(markdown):
         lines = block.split("\n")
         new_lines = []
         for line in lines:
-            new_lines.append(line[1:])
-        return "\n".join(new_lines)
+            new_line = line[1:].strip()
+            new_lines.append(new_line)
+        return text_to_children("\n".join(new_lines))
     
     # Format unordered lists and convert to child HTMLNodes for each line
     def format_unordered_list(block):
@@ -148,7 +149,7 @@ def markdown_to_html_node(markdown):
         # Now create a list of HTMLNodes, one for each line:
         child_nodes = []
         for line in new_lines:
-            child_nodes.append(HTMLNode(tag="li", value=line))
+            child_nodes.append(ParentNode(tag="li", children=text_to_children(line)))
         return child_nodes
     
     # Format ordered lists and convert to child HTMLNodes for each line:
@@ -164,7 +165,7 @@ def markdown_to_html_node(markdown):
         # Create a list of HTMLNodes, one for each line:
         child_nodes = []
         for line in new_lines:
-            child_nodes.append(HTMLNode(tag="li", value=line))
+            child_nodes.append(ParentNode(tag="li", children=text_to_children(line)))
         return child_nodes
 
 
@@ -190,27 +191,27 @@ def markdown_to_html_node(markdown):
         block_children = text_to_children(block)
         match block_type:
             case "normal":
-                block_node = HTMLNode(tag="p", children=block_children)
+                block_node = ParentNode(tag="p", children=block_children)
             case "heading":
                 heading_level, heading_text = format_heading(block)
-                block_node = HTMLNode(tag=f"h{heading_level}", value=heading_text)
+                block_node = LeafNode(tag=f"h{heading_level}", value=heading_text)
             case "code":
                 code_text = format_code(block)
-                block_node = HTMLNode(tag="pre", children=HTMLNode(tag="code",value=code_text))
+                block_node = ParentNode(tag="pre", children=[LeafNode(tag="code",value=code_text)])
             case "quote":
-                quote_text = format_quote(block)
-                block_node = HTMLNode(tag="blockquote", value=quote_text)
+                quote_children = format_quote(block)
+                block_node = ParentNode(tag="blockquote", children=quote_children)
             case "unordered_list":
                 child_nodes = format_unordered_list(block)
-                block_node = HTMLNode(tag="ul", children=child_nodes)
+                block_node = ParentNode(tag="ul", children=child_nodes)
             case "ordered_list":
                 child_nodes = format_ordered_list(block)
-                block_node = HTMLNode(tag="ol", children=child_nodes)
+                block_node = ParentNode(tag="ol", children=child_nodes)
 
         # Add each block's node to the list of nodes for all blocks:
-        block_nodes.append([block_node])
+        block_nodes.append(block_node)
 
     # Surround the block_nodes in a 'div' HTMLNode:
-    return HTMLNode(tag="div", children=block_nodes)
+    return ParentNode(tag="div", children=block_nodes)
 
     

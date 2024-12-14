@@ -285,7 +285,7 @@ class TestMarkdownToHTMLNodeFunc(unittest.TestCase):
     # Pass in an empty string:
     def test_01emptyString(self):
         markdown = ""
-        print(markdown_to_html_node(markdown))
+        print(f"\n\n\n\n--- markdown_to_html_node() output ---\n\n{markdown_to_html_node(markdown)}")
 
     # Pass in a single line:
     def test_02singleLine(self):
