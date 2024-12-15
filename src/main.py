@@ -1,6 +1,6 @@
 # from textnode import TextNode
 from copydir import copy_source_to_dest
-from generatepage import generate_page
+from generatepage import generate_pages_recursive
 
 def main():
     ### # Create an example TextNode:
@@ -15,7 +15,10 @@ def main():
     dest_objects = copy_source_to_dest(source, dest, live_print=False)
     # print(dest_objects)
 
-    # Generate the HTML page from the markdown source file:
-    generate_page("content/index.md", "template.html", "public/index.html")
+    # Generate the HTML pages from the markdown source folder:
+    content_dir = "content"
+    template_path = "template.html"
+    dest_dir = "public"
+    generate_pages_recursive(content_dir, template_path, dest_dir)
 
 main()

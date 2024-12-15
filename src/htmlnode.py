@@ -117,8 +117,10 @@ def markdown_to_html_node(markdown):
                 heading_level += 1
             else:
                 break
-        # Remove the '#' and return the heading string
-        return heading_level, block[(heading_level+1):]
+        # Return a ParentNode for the heading with the appropriate
+        # level and children of the text passed to the text_to_children
+        # function:
+        return ParentNode(tag=f"h{heading_level}", children=text_to_children(block[(heading_level+1):]))
     
     # Format code blocks:
     def format_code(block):
@@ -193,8 +195,7 @@ def markdown_to_html_node(markdown):
             case "normal":
                 block_node = ParentNode(tag="p", children=block_children)
             case "heading":
-                heading_level, heading_text = format_heading(block)
-                block_node = LeafNode(tag=f"h{heading_level}", value=heading_text)
+                block_node = format_heading(block)
             case "code":
                 code_text = format_code(block)
                 block_node = ParentNode(tag="pre", children=[LeafNode(tag="code",value=code_text)])
